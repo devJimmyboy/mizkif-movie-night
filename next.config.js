@@ -11,7 +11,11 @@ module.exports = {
     // Will be available on both server and client
     APP_URL: process.env.APP_URL,
     WS_URL: process.env.WS_URL,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
   /** We run eslint as a separate task in CI */
   eslint: { ignoreDuringBuilds: !!process.env.CI },
+  images: {
+    domains: ['cdn.betterttv.net'],
+  },
 };

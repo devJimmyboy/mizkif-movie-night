@@ -50,7 +50,7 @@ export const mergeRouters = t.mergeRouters;
 const isAuthed = middleware(({ next, ctx }) => {
   const user = ctx.session?.user;
 
-  if (!user?.name) {
+  if (!user?.id) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
 
@@ -59,6 +59,7 @@ const isAuthed = middleware(({ next, ctx }) => {
       user: {
         ...user,
         name: user.name,
+        id: user.id,
       },
     },
   });
@@ -68,3 +69,29 @@ const isAuthed = middleware(({ next, ctx }) => {
  * Protected base procedure
  */
 export const authedProcedure = t.procedure.use(isAuthed);
+
+const isAdmin = middleware(({ next, ctx }) => {
+  const user = ctx.session?.user;
+
+  if (!user?.id) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  if (user.role !== 'admin') {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+
+  return next({
+    ctx: {
+      user: {
+        ...user,
+        name: user.name,
+        id: user.id,
+      },
+    },
+  });
+});
+
+/**
+ * Protected base procedure
+ */
+export const adminProcedure = t.procedure.use(isAdmin);
