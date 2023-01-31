@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { trpc } from '../utils/trpc';
-import { Box, Button, Stack, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Stack, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { Movie } from '@prisma/client';
 
@@ -50,6 +50,7 @@ export default function MovieList({}: Props) {
       return Object.values(map).sort((a, b) => b.votes.length - a.votes.length);
     });
   }, []);
+  const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   const addToMovieNight = trpc.movieNight.addMovieToMovieNight.useMutation({
     onSuccess: (data) => {
@@ -90,7 +91,7 @@ export default function MovieList({}: Props) {
     <Stack
       direction="column"
       spacing={2}
-      sx={{ width: '90%', overflowY: 'scroll', pb: 6 }}
+      sx={{ width: '95%', overflowY: 'scroll', pb: 12, px: 2 }}
     >
       {movies.map((movie, i) => (
         <VotableMovie
@@ -99,6 +100,16 @@ export default function MovieList({}: Props) {
           key={`movie-option-${movie.id}`}
         />
       ))}
+      <Button
+        data-testid="loadMore"
+        onClick={() => moviesQuery.fetchPreviousPage()}
+        disabled={
+          !moviesQuery.hasPreviousPage || moviesQuery.isFetchingPreviousPage
+        }
+        className=""
+      >
+        {moviesQuery.isFetchingPreviousPage ? 'Loading...' : 'Load more'}
+      </Button>
     </Stack>
   );
 }
@@ -111,9 +122,12 @@ function VotableMovie({ movie, addMovieNight }: VotableMovieProps) {
   const { data: session, status } = useSession();
   const vote = trpc.movie.vote.useMutation();
   const addToMovieNight = trpc.movieNight.addMovieToMovieNight.useMutation();
+  const banMovie = trpc.movie.banMovie.useMutation();
 
   const userVoted =
     movie.votes.findIndex((v) => v.userId === session?.user?.id) !== -1;
+  if (session?.user?.role !== 'admin' && (movie.banned || movie.watched))
+    return null;
   return (
     <Stack
       direction="row"
@@ -171,17 +185,27 @@ function VotableMovie({ movie, addMovieNight }: VotableMovieProps) {
         </div>
         <div className="absolute bottom-2 right-2 flex flex-row items-center gap-2">
           {session?.user?.role === 'admin' && (
-            <Button
-              variant="contained"
-              disabled={!!movie.movieNightId}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                addMovieNight(movie.id);
-              }}
-            >
-              Add to Movie Night
-            </Button>
+            <ButtonGroup variant="contained">
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  banMovie.mutate({ id: movie.id });
+                }}
+              >
+                {movie.banned ? 'Unban' : 'Ban'}
+              </Button>
+              <Button
+                disabled={!!movie.movieNightId}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addMovieNight(movie.id);
+                }}
+              >
+                Add to Movie Night
+              </Button>
+            </ButtonGroup>
           )}
           <Typography variant="body2" color="text.primary" fontSize={20}>
             Votes: {movie.votes.length}

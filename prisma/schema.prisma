@@ -31,6 +31,8 @@ model Movie {
   movieNight   MovieNight? @relation(fields: [movieNightId], references: [id])
   submitter    String
   submittedBy  User        @relation(fields: [submitter], references: [id])
+  watched      Boolean     @default(false)
+  banned       Boolean     @default(false)
 
   // To return `Date`s intact through the API we need to add data transformers
   // https://trpc.io/docs/data-transformers

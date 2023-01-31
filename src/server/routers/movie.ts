@@ -7,7 +7,12 @@ import { observable } from '@trpc/server/observable';
 import { EventEmitter } from 'events';
 import { prisma } from '../prisma';
 import { z } from 'zod';
-import { authedProcedure, publicProcedure, router } from '../trpc';
+import {
+  adminProcedure,
+  authedProcedure,
+  publicProcedure,
+  router,
+} from '../trpc';
 import { MovieDb } from 'moviedb-promise';
 import movieDb from '../moviedb';
 import { TRPCError } from '@trpc/server';
@@ -72,16 +77,18 @@ export const movieRouter = router({
       const movieInfo = await movieDb.movieInfo({
         id: input.id,
       });
-      const nextMovieNight = await prisma.movieNight.findFirst({
+      const currMovieInfo = await prisma.movie.findUnique({
         where: {
-          startingAt: {
-            gte: new Date(),
-          },
-        },
-        include: {
-          movies: true,
+          id: movieInfo.id!,
         },
       });
+      if (currMovieInfo) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Movie already exists',
+        });
+      }
+
       console.log(movieInfo);
       const movie = await prisma.movie.create({
         data: {
@@ -287,6 +294,54 @@ export const movieRouter = router({
       });
       movie.votes.push(newVote);
       ee.emit('vote', movie);
+    }),
+  banMovie: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      let movie: IMovie | null = await prisma.movie.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          submittedBy: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+          votes: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      });
+      if (!movie) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Movie not found' });
+      }
+      movie = await prisma.movie.update({
+        where: {
+          id: movie.id,
+        },
+        data: {
+          banned: !movie.banned,
+        },
+        include: {
+          submittedBy: {
+            select: {
+              name: true,
+              image: true,
+            },
+          },
+          votes: {
+            select: {
+              userId: true,
+            },
+          },
+        },
+      });
+      ee.emit('add', movie);
+      return movie;
     }),
 
   onAdd: publicProcedure.subscription(() => {

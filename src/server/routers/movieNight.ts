@@ -194,6 +194,16 @@ export const movieNightRouter = router({
         },
         data: {
           completed: true,
+          movies: {
+            updateMany: {
+              where: {
+                watched: false,
+              },
+              data: {
+                watched: true,
+              },
+            },
+          },
         },
         include: {
           movies: true,

@@ -91,9 +91,12 @@ export default function SelectedMovie({
               <Button
                 size="large"
                 color="primary"
-                disabled={movieInfo.data.votes.some(
-                  (vote) => vote.userId === session.user.id,
-                )}
+                disabled={
+                  movieInfo.data.banned ||
+                  movieInfo.data.votes.some(
+                    (vote) => vote.userId === session.user.id,
+                  )
+                }
                 onClick={() => {
                   vote.mutate({
                     id: movie.id!,

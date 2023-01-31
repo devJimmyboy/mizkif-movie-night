@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 import { Movie, MovieNight as IMovieNight } from '@prisma/client';
 import { useSession } from 'next-auth/react';
-import { Icon } from '@iconify/react';
+import { Icon, InlineIcon } from '@iconify/react';
+import { NextLinkComposed } from './Link';
 type Props = {};
 
 export default function MovieNight({}: Props) {
@@ -138,7 +139,7 @@ export default function MovieNight({}: Props) {
           textAlign="center"
           fontFamily="inherit"
           fontSize={{
-            xs: 18,
+            xs: 15,
             md: 20,
             xl: 32,
           }}
@@ -157,7 +158,7 @@ export default function MovieNight({}: Props) {
                   component="div"
                   fontFamily="inherit"
                   fontWeight={600}
-                  fontSize={{ xs: 28, md: 32, xl: 42 }}
+                  fontSize={{ xs: 18, md: 32, xl: 42 }}
                   textAlign="center"
                   variant="h3"
                 >
@@ -201,15 +202,39 @@ export default function MovieNight({}: Props) {
           />
         ) : (
           <Typography
-            component="div"
+            component={NextLinkComposed}
+            to={`https://kick.com/offlinechatmovienight`}
+            target="movienightstream"
             fontFamily="inherit"
-            color="#ff4444"
+            color="text.primary"
             fontWeight={600}
-            fontSize={{ xs: 28, md: 32, xl: 42 }}
+            fontSize={{ xs: 16, md: 32, xl: 42 }}
             textAlign="center"
             variant="h3"
+            sx={{
+              textDecoration: 'none',
+              backgroundColor: '#ff4444',
+              borderRadius: 4,
+              padding: 1,
+              px: 4,
+
+              boxShadow: '0 0 0 2px #ff4444',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                backgroundColor: '#ff4444',
+                boxShadow: '0 0 0 4px #ff4444',
+              },
+            }}
           >
             LIVE NOW
+            <InlineIcon
+              fontSize={16}
+              icon="fa6-solid:arrow-up-right-from-square"
+              style={{
+                position: 'absolute',
+                margin: 4,
+              }}
+            />
           </Typography>
         )}
       </Stack>
@@ -240,11 +265,20 @@ function MovieList({ nightData, isAdmin, onRemoveMovie }: MovieListProps) {
       gap={1}
       alignItems="center"
       justifyContent="center"
+      sx={{
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        flexShrink: 1,
+        // maxWidth: {
+        //   xs: '200',
+        // },
+      }}
     >
       {nightData?.movies?.length ?? 0 > 0 ? (
         nightData?.movies.map((movie) => {
           return (
             <Box
+              key={`small-box-movie-${movie.id}`}
               sx={{
                 position: 'relative',
                 '&:hover .visible-on-hover': {
