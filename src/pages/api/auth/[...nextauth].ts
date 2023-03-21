@@ -24,7 +24,7 @@ providers.push(
   }),
 );
 
-const admins = ['devjimmyboy', 'anthonyc0la'];
+const admins = ['devjimmyboy', 'anthonyc0la', 'escrimah'];
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),

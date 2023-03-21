@@ -107,7 +107,7 @@ function EditMovieNight({ movie }: { movie: MovieNight }) {
         onChange={(value) => {
           formik.setFieldValue('startingAt', value);
         }}
-        renderInput={(props) => <TextField {...props} />}
+        // renderInput={(props) => <TextField {...props} />}
       />
       <Button
         type="submit"

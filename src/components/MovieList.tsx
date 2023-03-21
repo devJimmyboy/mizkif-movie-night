@@ -126,8 +126,9 @@ function VotableMovie({ movie, addMovieNight }: VotableMovieProps) {
 
   const userVoted =
     movie.votes.findIndex((v) => v.userId === session?.user?.id) !== -1;
-  if (session?.user?.role !== 'admin' && (movie.banned || movie.watched))
-    return null;
+  if (session?.user?.role !== 'admin' && movie.banned) return null;
+
+  if (movie.watched) return null;
   return (
     <Stack
       direction="row"

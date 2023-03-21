@@ -200,10 +200,10 @@ export default function MovieNight({}: Props) {
               );
             }}
           />
-        ) : (
+        ) : !!nextMovieNight ? (
           <Typography
             component={NextLinkComposed}
-            to={`https://kick.com/offlinechatmovienight`}
+            to={`https://kick.com/escrimah`}
             target="movienightstream"
             fontFamily="inherit"
             color="text.primary"
@@ -235,6 +235,15 @@ export default function MovieNight({}: Props) {
                 margin: 4,
               }}
             />
+          </Typography>
+        ) : (
+          <Typography
+            variant="h3"
+            fontWeight={600}
+            fontSize={{ xs: 16, md: 32, xl: 42 }}
+            textAlign="center"
+          >
+            No Movie Night Scheduled Yet
           </Typography>
         )}
       </Stack>

@@ -212,6 +212,19 @@ export const movieNightRouter = router({
       ee.emit('movieNightUpdate', movieNight);
       return movieNight;
     }),
+
+  clearAllVotes: adminProcedure.mutation(async ({ ctx }) => {
+    const result = await prisma.movie
+      .deleteMany({
+        where: {
+          banned: false,
+        },
+      })
+      .then(() => true)
+      .catch(() => false);
+
+    return result;
+  }),
   onMovieNightUpdate: publicProcedure.subscription(({}) => {
     return observable<MovieNight & { movies: Movie[] }>((emit) => {
       const onUpdate = (data: MovieNight & { movies: Movie[] }) => {

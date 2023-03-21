@@ -9,6 +9,10 @@ import {
   CardContent,
   CardHeader,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Modal,
   Stack,
   TextField,
@@ -20,26 +24,44 @@ import moment, { Moment } from 'moment';
 import React from 'react';
 import { toast } from 'react-hot-toast';
 import EditMovieNightForm from '../components/admin/EditMovieNightForm';
+import { Icon } from '@iconify/react';
 interface Props {}
 
 const Page: NextPage = ({}: Props) => {
   const [addMovieNightOpen, setAddMovieNightOpen] = React.useState(false);
+  const [resetVotesOpen, setResetVotesOpen] = React.useState(false);
+  const { mutate } = trpc.movieNight.clearAllVotes.useMutation();
   return (
     <LocalizationProvider dateAdapter={AdapterMoment}>
       <Head>
         <title>Offline Movie Nights - Admin</title>
       </Head>
-      <Box className="flex flex-col h-screen items-center">
+      <Box className="flex flex-col h-screen items-center gap-2 px-12">
         <h1 className="text-4xl font-bold">Admin</h1>
-        <Button
-          variant="contained"
-          onClick={() => {
-            setAddMovieNightOpen(true);
-          }}
-        >
-          Add Movie Night
-        </Button>
+        <Stack direction="row" className="w-full" spacing={6}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              setAddMovieNightOpen(true);
+            }}
+          >
+            Add Movie Night
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Icon icon="fa-solid:trash" />}
+            fullWidth
+            onClick={() => {
+              setResetVotesOpen(true);
+            }}
+          >
+            Reset All Votes
+          </Button>
+        </Stack>
         <EditMovieNightForm />
+
         <Dialog
           open={addMovieNightOpen}
           onClose={() => {
@@ -47,6 +69,41 @@ const Page: NextPage = ({}: Props) => {
           }}
         >
           <AddMovieNightForm />
+        </Dialog>
+        <Dialog
+          open={resetVotesOpen}
+          onClose={() => {
+            setResetVotesOpen(false);
+          }}
+        >
+          <DialogTitle>
+            Are you sure you would like to reset ALL currently voted movies?
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              This will reset all voted for movies except for those that have
+              been banned (users can't see banned movies). This action cannot be
+              undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setResetVotesOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                mutate();
+                setResetVotesOpen(false);
+              }}
+              color="error"
+            >
+              Reset Votes
+            </Button>
+          </DialogActions>
         </Dialog>
       </Box>
     </LocalizationProvider>
@@ -101,7 +158,7 @@ function AddMovieNightForm() {
           onChange={(value) => {
             formik.setFieldValue('startingAt', value);
           }}
-          renderInput={(props) => <TextField {...props} />}
+          // renderInput={(props) => <TextField {...props} />}
           minDateTime={moment()}
         />
         <Button
