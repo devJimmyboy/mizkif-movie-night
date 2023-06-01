@@ -17,9 +17,12 @@ import { MovieDb } from 'moviedb-promise';
 import movieDb from '../moviedb';
 import { TRPCError } from '@trpc/server';
 
-type IMovie = Movie & {
+export type IMovie = Movie & {
   votes: {
     userId: string;
+    user: {
+      name: string | null;
+    };
   }[];
   submittedBy: {
     image: string | null;
@@ -109,6 +112,11 @@ export const movieRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           submittedBy: {
@@ -142,7 +150,7 @@ export const movieRouter = router({
   search: publicProcedure
     .input(z.object({ query: z.string() }))
     .query(async ({ input }) => {
-      return movieDb.searchMovie({ query: input.query });
+      return movieDb.searchMovie({ query: input.query, include_adult: false });
     }),
 
   infinite: publicProcedure
@@ -169,6 +177,11 @@ export const movieRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           submittedBy: {
@@ -250,6 +263,11 @@ export const movieRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
           submittedBy: {
@@ -291,6 +309,13 @@ export const movieRouter = router({
           movieId: movie.id,
           userId: id,
         },
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
       });
       movie.votes.push(newVote);
       ee.emit('vote', movie);
@@ -312,6 +337,11 @@ export const movieRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -336,6 +366,11 @@ export const movieRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },

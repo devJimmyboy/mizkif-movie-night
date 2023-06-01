@@ -1,4 +1,13 @@
-import { Avatar, Box, Button, Paper, Stack, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { trpc } from '../utils/trpc';
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { signIn, signOut, useSession } from 'next-auth/react';
@@ -12,6 +21,7 @@ import MovieList from '../components/MovieList';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 import Link, { NextLinkComposed } from '../components/Link';
+import { useLocalStorage } from 'react-use';
 
 export default function Home() {
   const currentMovie = trpc.movie.currentMovie.useQuery();
@@ -27,6 +37,8 @@ export default function Home() {
     },
   });
   const [selectedMovie, setSelectedMovie] = useState<MovieResult | null>(null);
+  const [showBans, setShowBans] = useLocalStorage<boolean>('show-bans', true);
+
   const { data: session, status } = useSession();
 
   const isAdmin = session?.user?.role === 'admin';
@@ -85,20 +97,31 @@ export default function Home() {
             }}
           />
         )}
-        <MovieList />
+        <MovieList showBans={showBans!} />
 
         <Paper elevation={3} className="p-2 px-4 absolute bottom-6 right-6">
           {status === 'authenticated' ? (
             <Stack direction="row" spacing={2}>
               {isAdmin && (
-                <Button
-                  component={NextLinkComposed}
-                  to={{
-                    pathname: '/admin',
-                  }}
-                >
-                  Admin
-                </Button>
+                <>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={showBans}
+                        onClick={() => setShowBans(!showBans)}
+                      />
+                    }
+                    label="Show Bans"
+                  />
+                  <Button
+                    component={NextLinkComposed}
+                    to={{
+                      pathname: '/admin',
+                    }}
+                  >
+                    Admin
+                  </Button>
+                </>
               )}
               <Button onClick={() => signOut()}>Sign Out</Button>
               <Avatar src={session.user.image!} />

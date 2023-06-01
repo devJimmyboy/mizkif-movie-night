@@ -4,7 +4,7 @@ import { adminProcedure, publicProcedure, router } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { observable } from '@trpc/server/observable';
 import { Movie, MovieNight } from '@prisma/client';
-import { ee } from './movie';
+import { IMovie, ee } from './movie';
 
 export const movieNightRouter = router({
   getNextMovieNight: publicProcedure.query(async ({}) => {
@@ -123,7 +123,7 @@ export const movieNightRouter = router({
           message: 'No movie night found',
         });
       }
-      const movie = await prisma.movie.update({
+      const movie = (await prisma.movie.update({
         where: {
           id: input.movieId,
         },
@@ -140,10 +140,15 @@ export const movieNightRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },
-      });
+      })) as IMovie;
       movieNight.movies.push(movie);
       ee.emit('movieNightUpdate', movieNight);
       return movie;
@@ -173,6 +178,11 @@ export const movieNightRouter = router({
           votes: {
             select: {
               userId: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
             },
           },
         },

@@ -30,7 +30,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <meta name="viewport" content="initial-scale=1, width=device-width" />
         </Head>
         <ThemeProvider theme={theme}>
-          <CssBaseline />
+          <CssBaseline enableColorScheme />
           <Toaster position="bottom-left">
             {(t) => <ToastBar toast={t} style={{ ...t.style }} />}
           </Toaster>
