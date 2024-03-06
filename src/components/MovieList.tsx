@@ -5,6 +5,7 @@ import {
   Button,
   ButtonGroup,
   Collapse,
+  Divider,
   IconButton,
   Stack,
   Typography,
@@ -204,9 +205,15 @@ function VotableMovie({ movie, addMovieNight }: VotableMovieProps) {
             {movie.description?.split(' ').slice(0, 35).join(' ')}
           </Typography>
           <div className="flex-grow" />
+          <Stack direction="row" gap={2}>
           <Typography>
             Submitted by {movie.submittedBy?.name || 'Anonymous'}
           </Typography>
+            {/* <Divider orientation='vertical'/>
+            <Typography>
+            Directed by {movie.submittedBy?.name || 'Anonymous'}
+          </Typography> */}
+          </Stack>
           <div className="absolute top-2 right-2">
             <Typography variant="body2" color="text.secondary">
               Release Date: {movie.releaseDate}
