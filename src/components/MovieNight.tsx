@@ -203,7 +203,7 @@ export default function MovieNight({}: Props) {
         ) : !!nextMovieNight ? (
           <Typography
             component={NextLinkComposed}
-            to={`https://kick.com/escrimah`}
+            to={`https://angelthump.com/slomyshow`}
             target="movienightstream"
             fontFamily="inherit"
             color="text.primary"
